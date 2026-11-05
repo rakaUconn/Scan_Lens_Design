@@ -238,7 +238,8 @@ def report(elements, x, outdir, title="design", field_max_deg=None, n_fields=6, 
         R = float(_np(s.geometry.radius))
         t = float(_np(surf.get_thickness(i))[0]) if i < surf.num_surfaces - 1 else float("nan")
         mat = s.material_post
-        mname = getattr(mat, "name", None) or ("AIR" if float(_np(mat.n(0.625))) == 1.0 else str(mat))
+        n625 = float(np.ravel(_np(mat.n(0.625)))[0])
+        mname = getattr(mat, "name", None) or ("AIR" if n625 == 1.0 else f"cornea (n={n625:.4f} @625 nm)")
         lines.append(f"| {i} | {s.comment} | {'∞' if np.isinf(R) else f'{R:.3f}'} | "
                      f"{'–' if np.isnan(t) else f'{t:.3f}'} | {mname} | {_semi(s)} |")
     open(f"{outdir}/prescription.md", "w").write("\n".join(lines) + "\n")
