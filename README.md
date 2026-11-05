@@ -67,6 +67,32 @@ will be blurred to roughly the spot width but should remain clearly visible; axi
 500–750 nm source (≈ 0.5 µm in tissue) easily separates the endothelium from Descemet's membrane.
 Practical limits will be speckle (average several en-face frames) and, in vivo, eye motion.
 
+## Alternative: mostly 1" optics (longer working distance)
+
+**Ø1" N-BK7 plano-concave f = −75 mm  +  Thorlabs AC254-030-A (Ø1")  +  Thorlabs AC127-019-A (Ø½")**
+
+Thorlabs' shortest Ø1" achromat is f = 30 mm, so an all-1" design ends up at EFL ≈ 18–19 mm with
+more residual colour (best all-1" result: 4.9–5.1 µm on axis, ≥ 6.2 µm at the corner). Keeping only the
+f = 19 mm achromat at Ø½" gives nearly the same resolution as the main design with a much longer
+working distance.
+
+| Order | Part | Orientation | Air space after |
+|---|---|---|---|
+| — | galvo scan pivot | — | **10.01 mm** |
+| 1 | Ø1" plano-concave f −75 mm (R 38.8 mm, tc 3.5 mm) | **flat side toward galvo** | **3.15 mm** |
+| 2 | AC254-030-A | crown (R 20.89) toward galvo | **0.30 mm** (vertex; ≈ 2.2 mm at the Ø½" lens rim) |
+| 3 | AC127-019-A | crown (R 12.9) toward galvo | **9.12 mm** to corneal apex (9.53 mm in air) |
+
+| Broadband 1/e² spot | 0 | 0.14 | 0.28 | 0.43 | 0.57 | 0.71 mm |
+|---|---|---|---|---|---|---|
+| Main design (½" achromats) | 3.34 | 3.31 | 3.38 | 3.74 | 4.51 | 5.85 µm |
+| 1"-based design | 3.37 | 3.40 | 3.57 | 4.00 | 4.80 | 6.45 µm |
+
+* 1"-based: 57 % of the 1 × 1 mm area ≤ 4.0 µm, 82 % ≤ 4.5 µm, 93 % ≤ 5.0 µm (main design 70/91/97 %).
+* Working distance 9.1 mm (vs 3.3 mm) — much more practical for in-vivo imaging; but the galvo pivot
+  sits only 10 mm in front of the first lens (the lower bound of the optimisation).
+* In air: 3.46 → 4.36 µm (centre → corner). Plots: [`results/final_design_1inch/`](results/final_design_1inch).
+
 ## Why not exactly 3 µm everywhere?
 
 A 3 µm 1/e² Gaussian spot from a 4 mm beam requires EFL ≤ 12.6 mm at 750 nm *and* essentially perfect
