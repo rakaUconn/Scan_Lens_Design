@@ -12,6 +12,15 @@ from optiland.physical_apertures import RadialAperture
 
 from .catalog import element_surfaces
 
+# Human cornea (Navarro / Liou-Brennan-type values): anterior R 7.8 mm, central thickness 0.55 mm,
+# posterior R 6.5 mm, n_d = 1.376, Abbe number ~56. The endothelium lies on the posterior surface.
+CORNEA = dict(R_ant=7.8, thickness=0.55, R_post=6.5, n_d=1.376, abbe=56.0)
+
+
+def cornea_material():
+    from optiland.materials import AbbeMaterial
+    return AbbeMaterial(CORNEA["n_d"], CORNEA["abbe"], model="buchdahl")
+
 EPD_FACTOR = 2.0          # EPD = 2 x (1/e^2 beam diameter) -> pupil sampled out to 2w
 GAUSS_SIGMA = 0.25        # matches exp(-2 r^2 / w^2) for EPD_FACTOR = 2
 
@@ -26,8 +35,10 @@ def _mat(name):
 
 def build_optic(elements, x, beam_diameter=4.0, field_max_deg=3.0,
                 wavelengths=(0.500, 0.5625, 0.625, 0.6875, 0.750), primary=0.625,
-                field_fracs=(0.0, 0.7, 1.0), apodize=True, name="OCT scan lens"):
-    """elements: [(catalog_name, reversed)], x = [d_pupil, gaps..., working_distance]."""
+                field_fracs=(0.0, 0.7, 1.0), apodize=True, name="OCT scan lens", cornea=False):
+    """elements: [(catalog_name, reversed)], x = [d_pupil, gaps..., working_distance].
+    cornea=True: x[-1] is the lens -> corneal apex distance and the image surface is the
+    corneal endothelium (posterior corneal surface, curved)."""
     n = len(elements)
     op = _optic.Optic(name=name)
     op.surfaces.add(index=0, radius=np.inf, thickness=np.inf)
@@ -43,7 +54,13 @@ def build_optic(elements, x, beam_diameter=4.0, field_max_deg=3.0,
                             aperture=RadialAperture(r_max=0.45 * dia),
                             comment=f"{lens}{' (rev)' if rev else ''} S{j+1}")
             k += 1
-    op.surfaces.add(index=k, comment="image / sample")
+    if cornea:
+        op.surfaces.add(index=k, radius=CORNEA["R_ant"], thickness=CORNEA["thickness"],
+                        material=cornea_material(), comment="cornea anterior surface")
+        k += 1
+        op.surfaces.add(index=k, radius=CORNEA["R_post"], comment="endothelium (posterior cornea)")
+    else:
+        op.surfaces.add(index=k, comment="image / sample")
     op.set_aperture(aperture_type="EPD", value=EPD_FACTOR * beam_diameter)
     if apodize:
         op.set_apodization(GaussianApodization(sigma=GAUSS_SIGMA))

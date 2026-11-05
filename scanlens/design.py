@@ -17,7 +17,7 @@ SPEC = dict(
     ref_wl_um=0.625,
     beam_diameter_mm=4.0,          # 1/e^2 diameter at the scan pivot (entrance pupil)
     spot_target_um=3.0,            # 1/e^2 spot diameter target
-    field_half_mm=1.0,             # scan field half-width at sample (FOV = 2 x 2 mm, radial 1 mm)
+    field_half_mm=0.71,            # FOV 1 x 1 mm square -> corner radius 0.707 mm
     min_pupil_dist_mm=10.0,        # galvo pivot -> first lens vertex (mechanical clearance)
     min_working_dist_mm=3.0,       # last lens vertex -> focal plane
     min_edge_gap_mm=0.3,           # lens-to-lens edge clearance

@@ -121,17 +121,17 @@ def chief(op, Hy, wl):
 
 
 # ------------------------------------------------------------------ full report
-def report(elements, x, outdir, title="design", field_max_deg=None, n_fields=6):
+def report(elements, x, outdir, title="design", field_max_deg=None, n_fields=6, cornea=False):
     os.makedirs(outdir, exist_ok=True)
     D = SPEC["beam_diameter_mm"]
     wl0 = SPEC["ref_wl_um"]
-    op_tmp = build_optic(elements, x, D, 1.0, WLS_FINE, wl0)
+    op_tmp = build_optic(elements, x, D, 1.0, WLS_FINE, wl0, cornea=cornea)
     efl = float(_np(op_tmp.paraxial.f2()))
     if field_max_deg is None:
         field_max_deg = float(np.degrees(np.arctan(SPEC["field_half_mm"] / efl)))
     Hys = np.linspace(0, 1, n_fields)
-    op = build_optic(elements, x, D, field_max_deg, WLS_FINE, wl0, field_fracs=tuple(Hys))
-    res = dict(elements=[list(e) for e in elements], x=[float(v) for v in x], efl_mm=efl,
+    op = build_optic(elements, x, D, field_max_deg, WLS_FINE, wl0, field_fracs=tuple(Hys), cornea=cornea)
+    res = dict(elements=[list(e) for e in elements], x=[float(v) for v in x], efl_mm=efl, cornea=cornea,
                field_max_deg=field_max_deg, engine="optiland", rows=[], broadband=[])
 
     psf_imgs = {}
@@ -168,7 +168,7 @@ def report(elements, x, outdir, title="design", field_max_deg=None, n_fields=6):
                       title=f"{title}: EFL {efl:.2f} mm, galvo->lens {x[0]:.1f} mm, WD {x[-1]:.2f} mm")
     fig.savefig(f"{outdir}/layout.png", dpi=150, bbox_inches="tight"); plt.close(fig)
 
-    op_sd = build_optic(elements, x, D, field_max_deg, [0.5, 0.5625, 0.625, 0.6875, 0.75], wl0)
+    op_sd = build_optic(elements, x, D, field_max_deg, [0.5, 0.5625, 0.625, 0.6875, 0.75], wl0, cornea=cornea)
     sd = SpotDiagram(op_sd, num_rings=12)
     fig, _ = sd.view(figsize=(12, 4), show=False)
     fig.savefig(f"{outdir}/spot_diagram.png", dpi=150, bbox_inches="tight"); plt.close(fig)

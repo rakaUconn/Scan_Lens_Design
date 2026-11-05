@@ -80,16 +80,45 @@ def air_surfaces(elements):
     return idx
 
 
-def optimise_optiland(elements, x, field_max_deg, maxiter=60, disp=False, operand="oct_psf_diameter"):
-    op = build_optic(elements, x, SPEC["beam_diameter_mm"], field_max_deg, WLS, SPEC["ref_wl_um"])
-    prob = OptimizationProblem()
+def prefocus(op, surf, span=2.0, fields=(0.0, 0.7)):
+    """Smooth 1-D focus on the working distance (polychromatic Gaussian-weighted RMS WFE),
+    so the PSF-diameter merit (flat once the spot leaves the PSF window) starts near focus."""
+    from scipy.optimize import minimize_scalar
+    t0 = float(be.to_numpy(op.surfaces.get_thickness(surf))[0])
+
+    def f(t):
+        op.updater.set_thickness(t, surf)
+        v = [gauss_rms_waves(op, h, wl, num_rays=16) for h in fields for wl in WLS]
+        v = np.nan_to_num(np.array(v), nan=50.0, posinf=50.0)
+        return float(np.sum(v ** 2))
+
+    lo = max(t0 - span, 0.5)
+    ts = np.linspace(lo, t0 + span, 41)
+    vals = [f(t) for t in ts]
+    i = int(np.argmin(vals))
+    r = minimize_scalar(f, bounds=(ts[max(i - 1, 0)], ts[min(i + 1, len(ts) - 1)]), method="bounded",
+                        options=dict(xatol=1e-4))
+    op.updater.set_thickness(float(r.x), surf)
+    return float(r.x)
+
+
+def optimise_optiland(elements, x, field_max_deg, maxiter=60, disp=False, operand="oct_psf_diameter",
+                      cornea=False, fixed=()):
+    """fixed: indices into x (0 = galvo distance, ..., -1 = WD) that are not varied."""
+    op = build_optic(elements, x, SPEC["beam_diameter_mm"], field_max_deg, WLS, SPEC["ref_wl_um"], cornea=cornea)
     air = air_surfaces(elements)
+    prefocus(op, air[-1])
+    prob = OptimizationProblem()
     n = len(elements)
     # variables
-    prob.add_variable(op, "thickness", surface_number=air[0], min_val=SPEC["min_pupil_dist_mm"], max_val=40.0)
-    for s in air[1:-1]:
-        prob.add_variable(op, "thickness", surface_number=s, min_val=SPEC["min_vertex_gap_mm"], max_val=20.0)
-    prob.add_variable(op, "thickness", surface_number=air[-1], min_val=SPEC["min_working_dist_mm"], max_val=40.0)
+    nv = len(air)
+    fixed = {f % nv for f in fixed}
+    for i, s in enumerate(air):
+        if i in fixed:
+            continue
+        lo, hi = ((SPEC["min_pupil_dist_mm"], 40.0) if i == 0 else
+                  (SPEC["min_working_dist_mm"], 40.0) if i == nv - 1 else (SPEC["min_vertex_gap_mm"], 20.0))
+        prob.add_variable(op, "thickness", surface_number=s, min_val=lo, max_val=hi)
     # operands: true broadband FFT-PSF 1/e^2 diameter (Optiland FFTPSF) at 3 field points
     for Hy in (0.0, 0.7, 1.0):
         prob.add_operand(operand_type=operand, target=0.0, weight=1.0,
