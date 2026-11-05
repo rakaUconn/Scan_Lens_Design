@@ -1,0 +1,4 @@
+numpy
+scipy
+matplotlib
+optiland>=0.6

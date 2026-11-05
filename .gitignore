@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+results/*.log
+results/hybrid_shard*.json
