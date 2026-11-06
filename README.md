@@ -13,7 +13,30 @@ simulated and optimised with [Optiland](https://github.com/optiland/optiland).
 | Target | lateral spot ≈ 3 µm; corneal endothelial cells (≈ 20 µm hexagons) easily distinguished |
 | Mechanical | galvo → first lens ≥ 10 mm, working distance ≥ 3 mm, lens edge gaps ≥ 0.3 mm |
 
-## Final design
+## Recommended design — working distance ≥ 10 mm
+
+**Ø1" N-BK7 plano-concave f = −50 mm  +  Thorlabs AC127-030-A (reversed)  +  Thorlabs AC127-019-A**
+
+![layout](results/final_design_wd10/endothelium/layout.png)
+
+| Order (from galvo) | Part | Orientation | Air space after |
+|---|---|---|---|
+| — | galvo scan pivot (aperture stop) | — | **12.46 mm** |
+| 1 | Ø1" N-BK7 plano-concave, f −50 mm (R 25.8 mm, tc 3.5 mm) | concave side toward galvo, flat side toward lens 2 | **0.30 mm** (vertex; ≈ 0.8 mm at Ø½" rim) |
+| 2 | AC127-030-A | **reversed**: flint side (R 44.2) toward galvo, crown (R 17.9) toward eye | **0.30 mm** (vertex; ≈ 3.1 mm at rims) |
+| 3 | AC127-019-A | crown (R 12.9) toward galvo | **10.93 mm** to corneal apex (11.34 mm in air) |
+
+* EFL 13.4 mm with the cornea (13.6 mm in air), scan ±3.0° for the 1 × 1 mm field.
+* Broadband 1/e² spot on the endothelium: **3.43, 3.48, 3.64, 3.95, 4.57, 5.70 µm** at 0, 0.14, 0.28,
+  0.43, 0.57, 0.71 mm (FWHM 2.0 → 3.4 µm); 60 % of the field ≤ 4.0 µm, 89 % ≤ 4.5 µm, 97 % ≤ 5.0 µm.
+* In air: 3.53 µm on axis → 4.39 µm at the corner, f-θ distortion −0.01 %.
+* Focal shift −5 … +18 µm (500–750 nm), lateral colour ≤ 1.7 µm, chief-ray angle −1° at the corner.
+* Working distance is measured from the AC127-019-A rear vertex; a retaining ring protruding in front
+  of the lens reduces the clearance (≈ 8.7 mm with a 2.5 mm ring) — mount it with the ring recessed.
+* Plots and prescription: [`results/final_design_wd10/`](results/final_design_wd10), numbers in
+  [`results/final_design_wd10.json`](results/final_design_wd10.json).
+
+## Alternative A — short working distance (3.3 mm)
 
 **Thorlabs AC127-019-A  +  Thorlabs AC127-030-A  +  Ø1" N-BK7 plano-concave, f = −30 mm**
 
@@ -67,7 +90,7 @@ will be blurred to roughly the spot width but should remain clearly visible; axi
 500–750 nm source (≈ 0.5 µm in tissue) easily separates the endothelium from Descemet's membrane.
 Practical limits will be speckle (average several en-face frames) and, in vivo, eye motion.
 
-## Alternative: mostly 1" optics (longer working distance)
+## Alternative B — mostly 1" optics (working distance 9.1 mm)
 
 **Ø1" N-BK7 plano-concave f = −75 mm  +  Thorlabs AC254-030-A (Ø1")  +  Thorlabs AC127-019-A (Ø½")**
 
@@ -85,7 +108,7 @@ working distance.
 
 | Broadband 1/e² spot | 0 | 0.14 | 0.28 | 0.43 | 0.57 | 0.71 mm |
 |---|---|---|---|---|---|---|
-| Main design (½" achromats) | 3.34 | 3.31 | 3.38 | 3.74 | 4.51 | 5.85 µm |
+| Alternative A (½" achromats) | 3.34 | 3.31 | 3.38 | 3.74 | 4.51 | 5.85 µm |
 | 1"-based design | 3.37 | 3.40 | 3.57 | 4.00 | 4.80 | 6.45 µm |
 
 * 1"-based: 57 % of the 1 × 1 mm area ≤ 4.0 µm, 82 % ≤ 4.5 µm, 93 % ≤ 5.0 µm (main design 70/91/97 %).
