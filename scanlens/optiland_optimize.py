@@ -92,7 +92,8 @@ def prefocus(op, surf, span=2.0, fields=(0.0, 0.7)):
         v = np.nan_to_num(np.array(v), nan=50.0, posinf=50.0)
         return float(np.sum(v ** 2))
 
-    lo = max(t0 - span, 0.5)
+    lo = max(t0 - span, SPEC["min_working_dist_mm"])
+    t0 = max(t0, lo)
     ts = np.linspace(lo, t0 + span, 41)
     vals = [f(t) for t in ts]
     i = int(np.argmin(vals))
